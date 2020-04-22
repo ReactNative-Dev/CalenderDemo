@@ -6,7 +6,7 @@
  * @flow strict-local
  */
 
-import React from 'react';
+import React, {useState} from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -14,100 +14,90 @@ import {
   View,
   Text,
   StatusBar,
+  FlatList,
+  TouchableOpacity,
 } from 'react-native';
+import {Calendar} from 'react-native-calendars';
+import Data from './slots.json';
 
-import {
-  Header,
-  LearnMoreLinks,
-  Colors,
-  DebugInstructions,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+const App = () => {
+  const [slots, setSlots] = useState({});
+  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
 
-const App: () => React$Node = () => {
+  const handleSlotSelect = id => {
+    var slot = slots[date] ? slots[date] : [];
+    slot.push(id);
+    setSlots({
+      ...slots,
+      [date]: slot,
+    });
+  };
+
+  console.log('Slots: ', slots);
+  console.log('Date: ', date);
+
   return (
     <>
-      <StatusBar barStyle="dark-content" />
-      <SafeAreaView>
-        <ScrollView
-          contentInsetAdjustmentBehavior="automatic"
-          style={styles.scrollView}>
-          <Header />
-          {global.HermesInternal == null ? null : (
-            <View style={styles.engine}>
-              <Text style={styles.footer}>Engine: Hermes</Text>
-            </View>
-          )}
-          <View style={styles.body}>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Step One</Text>
-              <Text style={styles.sectionDescription}>
-                Edit <Text style={styles.highlight}>App.js</Text> to change this
-                screen and then come back to see your edits.
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>See Your Changes</Text>
-              <Text style={styles.sectionDescription}>
-                <ReloadInstructions />
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Debug</Text>
-              <Text style={styles.sectionDescription}>
-                <DebugInstructions />
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Learn More</Text>
-              <Text style={styles.sectionDescription}>
-                Read the docs to discover what to do next:
-              </Text>
-            </View>
-            <LearnMoreLinks />
-          </View>
-        </ScrollView>
+      <StatusBar barStyle="dark-content" backgroundColor="#dadada" />
+      <SafeAreaView style={styles.container}>
+        <Calendar onDayPress={day => setDate(day.dateString)} />
+        <View style={styles.timeSlots}>
+          <Text style={styles.heading}>Time Slots for {date}</Text>
+          <FlatList
+            data={Data.slots}
+            numColumns={2}
+            columnWrapperStyle={{minWidth: '100%', justifyContent: 'center'}}
+            renderItem={({item}) => (
+              <TouchableOpacity
+                style={[
+                  styles.button,
+                  slots[date] && slots[date].includes(item.id)
+                    ? styles.buttonSelected
+                    : {},
+                ]}
+                onPress={() => handleSlotSelect(item.id)}>
+                <Text>
+                  {item.from} - {item.to}
+                </Text>
+              </TouchableOpacity>
+            )}
+          />
+        </View>
       </SafeAreaView>
     </>
   );
 };
 
 const styles = StyleSheet.create({
-  scrollView: {
-    backgroundColor: Colors.lighter,
+  container: {
+    flex: 1,
+    paddingVertical: 20,
+    paddingHorizontal: 10,
+    backgroundColor: '#dadada',
   },
-  engine: {
-    position: 'absolute',
-    right: 0,
+  timeSlots: {
+    flex: 1,
+    alignItems: 'center',
+    flexDirection: 'column',
+    marginTop: 10,
   },
-  body: {
-    backgroundColor: Colors.white,
+  heading: {
+    fontSize: 20,
+    marginVertical: 10,
   },
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+  button: {
+    height: 40,
+    backgroundColor: 'white',
+    borderColor: 'black',
+    borderWidth: 1,
+    borderRadius: 5,
+    marginHorizontal: 5,
+    marginTop: 5,
+    paddingHorizontal: 10,
+    justifyContent: 'center',
   },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: Colors.black,
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-    color: Colors.dark,
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-  footer: {
-    color: Colors.dark,
-    fontSize: 12,
-    fontWeight: '600',
-    padding: 4,
-    paddingRight: 12,
-    textAlign: 'right',
+  buttonSelected: {
+    backgroundColor: 'orange',
   },
 });
 
