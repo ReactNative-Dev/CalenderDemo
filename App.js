@@ -26,7 +26,8 @@ const App = () => {
 
   const handleSlotSelect = id => {
     var slot = slots[date] ? slots[date] : [];
-    slot.push(id);
+    if (slot.includes(id)) slot = slot.filter(s => s !== id);
+    else slot.push(id, id + 1, id + 2);
     setSlots({
       ...slots,
       [date]: slot,
