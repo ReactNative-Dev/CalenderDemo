@@ -33,9 +33,6 @@ const App = () => {
     });
   };
 
-  console.log('Slots: ', slots);
-  console.log('Date: ', date);
-
   return (
     <>
       <StatusBar barStyle="dark-content" backgroundColor="#dadada" />
